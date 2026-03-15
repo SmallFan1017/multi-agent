@@ -1,0 +1,42 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.code-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Misc
+*.log
+*.tmp
+*.temp
+tmp/
+temp/
+.cache/
+
+# Environment / secrets
+.env
+.env.*
+
+# Generated research outputs (do not push by default)
+output/papers/
+output/translations/
+output/summaries/
+output/literature-search/

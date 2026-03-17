@@ -24,8 +24,10 @@ tools: ["*"]
 > ⚠️ **效率規則（必須遵守）**
 > - ❌ **禁止**建立中間暫存檔案（如 `_pdf_extract.json`、`_content.txt` 等）
 > - ❌ **禁止**等所有論文提取完才開始撰寫摘要
-> - ✅ **每批 3–5 篇**：提取文字 → 立即撰寫摘要卡 → 立即 append 寫入輸出檔案
+> - ❌ **禁止**自行呼叫 Write 工具寫入任何檔案（由主 Agent 寫檔）
+> - ✅ **每批 3–5 篇**：提取文字 → 立即撰寫摘要卡 → 累積至回覆緩衝區
 > - ✅ 每批結束後再處理下一批，防止 token 超量
+> - ✅ 所有批次完成後，將完整內容**一次輸出至回覆末尾**，供主 Agent 寫檔
 
 **Step 0 — 確認 PDF 存在**
 
@@ -35,9 +37,9 @@ Get-ChildItem output\papers -Recurse -Filter *.pdf | Select-Object FullName
 
 若有論文缺少 PDF，立即停止並提示使用者先透過 @web-searcher 下載。
 
-**Step 1 — 初始化輸出檔案**
+**Step 1 — 初始化回覆緩衝區**
 
-若 `output/summaries/overview.md` 尚不存在或需要重寫，先用工具建立包含標題的空殼。
+在回覆中先輸出報告標題（`# 📌 論文概覽報告` 等），作為最終輸出的開頭。
 
 **Step 2 — 分批提取（每批 3–5 篇）**
 
@@ -56,10 +58,10 @@ for pdf_path in batch_pdfs:
     print(f"=== {arxiv_id} ===\n{front}\n--- BACK ---\n{back}\n")
 ```
 
-**Step 3 — 立即撰寫並 append 寫入**
+**Step 3 — 立即撰寫並累積至回覆**
 
-閱讀終端輸出，對本批每篇**立即**撰寫概覽小卡，並 append 至 `output/summaries/overview.md`。  
-**不等下一批提取完再寫，逐批完成逐批寫入。**
+閱讀終端輸出，對本批每篇**立即**撰寫概覽小卡，累積至回覆緩衝區。
+**不等下一批提取完再寫，逐批完成逐批累積。**
 
 **Step 4 — 重複 Step 2–3 直到所有論文完成**
 
@@ -109,7 +111,7 @@ for pdf_path in batch_pdfs:
 4. **逐章節整理**：依原文順序，系統性地整理每個章節的內容
 5. **標記關鍵要點**：每個章節末尾加上關鍵要點摘要
 6. **分析研究關聯**：分析與使用者研究方向的關聯性
-7. **彙整輸出**：產生獨立 Markdown 檔案，路徑 `output/summaries/{arxiv_id}_summary.md`
+7. **彙整輸出**：將完整整理內容以 Markdown 格式**直接輸出至回覆末尾**（❌ 不呼叫 Write 工具）。主 Agent 收到後負責寫入 `output/summaries/{arxiv_id}_summary.md`
 
 ## 詳細模式整理規則
 
@@ -199,9 +201,9 @@ for pdf_path in batch_pdfs:
 ## 指令
 
 - **預設使用概覽模式**，除非使用者明確指定「詳細整理」
-- **論文來源**：[PDF 路徑或 arXiv HTML `arxiv.org/html/{ID}`]
-- **輸出位置**：
-  - 概覽模式：`output/summaries/overview.md`（所有論文志在同一檔）
-  - 詳細模式：`output/summaries/{arxiv_id}_summary.md`（每篇獨立）
+- **論文來源**：[由主 Agent 派送任務時提供 PDF 路徑]
+- **輸出方式**：將完整 Markdown 內容直接輸出至回覆末尾，不寫入任何檔案。主 Agent 負責寫檔：
+  - 概覽模式：`output/summaries/overview.md`
+  - 詳細模式：`output/summaries/{arxiv_id}_summary.md`
 
 若未輸入論文內容，請回覆：「請提供論文 PDF 路徑或貼上論文內容。」

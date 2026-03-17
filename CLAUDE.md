@@ -35,6 +35,8 @@
 
 > ⚠️ **PDF 優先原則**：摘要與翻譯必須從 `output/papers/` 下的本地 PDF 讀取，不得從 arXiv 網頁抓取。若 PDF 不存在，先用 web-searcher 下載再進行後續工作。
 
+> ⚠️ **寫檔責任原則**：paper-translator 與 paper-summarizer 不寫入任何檔案——它們將完整 Markdown 內容回傳至任務結果。**主 Agent 在收到結果後，負責呼叫 Write 工具寫入指定路徑。** 若結果內容過長被截斷，以任務通知中的 `result` 欄位為準；若仍不完整，以 Bash `tail` 讀取 output_file 補全。
+
 - 使用者給了 **PDF 論文** → 詢問是要翻譯、整理重點、還是兩者都要
 - 使用者要求 **翻譯** → 讀取 `agents/paper-translator/AGENTS.md` 作為 Task 指令
 - 使用者要求 **論文摘要/重點** → 讀取 `agents/paper-summarizer/AGENTS.md` 作為 Task 指令

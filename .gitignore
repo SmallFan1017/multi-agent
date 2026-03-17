@@ -1,3 +1,7 @@
+# 我自己整理的資料
+報告/
+論文/
+
 # OS / Editor
 .DS_Store
 Thumbs.db
@@ -36,6 +40,7 @@ temp/
 .env.*
 
 # Generated research outputs (do not push by default)
+output/
 output/papers/
 output/translations/
 output/summaries/

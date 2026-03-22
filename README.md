@@ -40,7 +40,15 @@
 
 ```mermaid
 flowchart TD
-    U[User] --> M[Main Agent: researcher]
+    U[User]
+
+    U -->|VS Code Copilot\n@agent-name| M
+    U -->|Claude CLI\n自然語言需求| M
+    U -->|Claude CLI\n/skill-name| SK
+
+    SK[Skills 快捷入口\nreview-code / translate-paper\nsummarize-paper / verify-pdf / find-papers]
+
+    M[Main Agent: researcher\nCLAUDE.md / AGENTS.md]
     M --> T[paper-translator]
     M --> S[paper-summarizer]
     M --> C[code-reviewer]
@@ -73,6 +81,33 @@ flowchart TD
 | presentation-maker | 研究內容轉投影片結構 | Markdown 簡報稿 |
 | data-analysis | 實驗數據分析與圖表 | 分析報告與圖表 |
 | web-searcher | 網路查核、PDF 驗證與重下載 | 查核報告 / 驗證報告 |
+
+---
+
+## Claude Code Skills（直接呼叫入口）
+
+除了主代理調度流程，本專案提供 5 個可直接在 **Claude CLI** 呼叫的 Skills，對應高頻單一任務。
+
+> ⚠️ **Skills 為 Claude CLI 專屬**。VS Code Copilot 請改用 `@agent-name` 語法（如 `@paper-translator`）。
+
+| Skill | 呼叫方式 | 功能 | 靈感來源 |
+|-------|---------|------|---------|
+| `/review-code` | 貼上程式碼後呼叫 | 三向平行審查（符合性、邏輯、風險）+ 結構化報告 | 官方 [`/simplify`](https://code.claude.com/docs/en/skills.md) |
+| `/translate-paper [pdf]` | 指定 PDF 或留空選擇 | 英文論文 → 繁體中文中英對照 | — |
+| `/summarize-paper [id\|--detail]` | 留空掃描全部 PDF | 概覽模式（多篇小卡）/ 詳細模式（單篇深入） | — |
+| `/verify-pdf [path]` | 留空驗證所有 PDF | PDF 完整性檢查 + 自動重新下載 | 官方 [`/loop`](https://code.claude.com/docs/en/skills.md) |
+| `/find-papers <topic>` | 指定主題關鍵字 | 平行搜尋 arXiv/Semantic Scholar/ISCA，產出分級報告 | 官方 [`/batch`](https://code.claude.com/docs/en/skills.md) |
+
+> **Skills vs Sub-Agent**：Skills 供使用者直接觸發單一任務；需要跨任務串接（如「下載 → 翻譯 → 整理」）的複合工作流，仍由主代理自動調度 Sub-Agent 完成。
+
+### 雙平台功能對照
+
+| 功能 | VS Code Copilot | Claude CLI |
+|------|:--------------:|:----------:|
+| 主代理自動調度 | ✅ | ✅ |
+| @agent-name 直接呼叫 | ✅ | ❌ |
+| /skill-name 快捷入口 | ❌ | ✅ |
+| 複合任務工作流 | ✅ | ✅ |
 
 ---
 
@@ -114,6 +149,13 @@ Agent/
 │  ├─ paper-translator/AGENTS.md
 │  ├─ presentation-maker/AGENTS.md
 │  └─ web-searcher/AGENTS.md
+├─ .claude/
+│  └─ skills/                        ← Claude Code Skills（直接呼叫入口）
+│     ├─ review-code/SKILL.md
+│     ├─ translate-paper/SKILL.md
+│     ├─ summarize-paper/SKILL.md
+│     ├─ verify-pdf/SKILL.md
+│     └─ find-papers/SKILL.md
 ├─ docs/
 │  ├─ usage-guide.md
 │  └─ workspace-standards.md
@@ -139,6 +181,12 @@ Agent/
 1. 進入專案目錄。
 2. 執行 `claude`。
 3. 依需求讓主代理自動調度，或明確指定任務類型。
+4. 也可直接呼叫 Skills 執行單一任務，例如：
+   ```
+   /translate-paper output/papers/icassp/2401.08992_xxx.pdf
+   /find-papers streaming ASR --venue Interspeech
+   /review-code
+   ```
 
 ---
 

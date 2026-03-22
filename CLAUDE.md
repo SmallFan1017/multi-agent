@@ -47,6 +47,20 @@
 - 使用者要求 **查找/驗證網路資訊**（論文是否被接受、確認標題、查詢網頁內容）→ 讀取 `agents/web-searcher/AGENTS.md` 作為 Task 指令
 - **複合任務** → 依序派出多個 Sub-Agent Task，最後整合
 
+### 直接呼叫 Skill（快捷入口）
+
+使用者可透過 `/skill名稱` 直接觸發以下任務，不需經過主 Agent 調度：
+
+| Skill | 呼叫方式 | 對應 Agent | 靈感來源 |
+|-------|---------|-----------|---------|
+| `/review-code` | 貼上程式碼後直接呼叫 | code-reviewer | 官方 `/simplify` |
+| `/translate-paper [pdf]` | 指定 PDF 路徑或留空選擇 | paper-translator | — |
+| `/summarize-paper [id] [--detail]` | 留空掃描全部；`--detail` 為詳細模式 | paper-summarizer | — |
+| `/verify-pdf [path]` | 留空驗證所有 PDF | web-searcher（驗證部分） | 官方 `/loop` |
+| `/find-papers <topic>` | 指定主題關鍵字 | literature-search | 官方 `/batch` |
+
+> Skills 與 Sub-Agent 並存：Skills 供使用者直接觸發單一任務；複合任務（如「下載 + 翻譯 + 整理」）仍由主 Agent 調度多個 Sub-Agent 完成。
+
 ### 調度回報格式
 
 完成任務後，務必回報：
